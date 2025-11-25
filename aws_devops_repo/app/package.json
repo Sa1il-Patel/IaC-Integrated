@@ -1,6 +1,9 @@
 {
-  "name": "aws-devops-demo",
-  "version": "1.0.0",
-  "scripts": {"start": "node app.js"},
-  "dependencies": {"express": "^4.18.2"}
+"name": "aws-cicd-sample",
+"version": "1.0.0",
+"main": "app.js",
+"scripts": {
+"start": "node app.js"
+},
+"dependencies": {}
 }
