@@ -1,1 +1,25 @@
 version: 0.2
+
+
+env:
+variables:
+AWS_DEFAULT_REGION: "us-east-1"
+phases:
+pre_build:
+commands:
+- echo Logging in to Amazon ECR...
+- $(aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com)
+- REPO_NAME=${APP_NAME}
+- IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION}
+build:
+commands:
+- echo Building Docker image...
+- docker build -t $REPO_NAME:$IMAGE_TAG .
+- docker tag $REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+post_build:
+commands:
+- echo Pushing Docker image...
+- docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+- printf '[{"name":"container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+artifacts:
+files: imagedefinitions.json
